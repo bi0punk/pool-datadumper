@@ -1,3 +1,18 @@
+function Redact-ConnectionString {
+    param([string]$cs)
+    # Reemplaza Password=valor; con Password=***REDACTED***;
+    $cs = $cs -replace '(Password\s*=\s*)([^;]+)', "`$1***REDACTED***"
+    return $cs
+}
+
+function Redact-Value {
+    param([string]$value)
+    if ($value -match '(?i)(password|secret|key|token|connection)') {
+        return "***REDACTED***"
+    }
+    return $value
+}
+
 Import-Module WebAdministration
 
 # Obtener la primera IP válida (no loopback, no APIPA)
@@ -40,10 +55,10 @@ $pools = Get-ChildItem IIS:\AppPools | ForEach-Object {
                 try {
                     [xml]$webConfig = Get-Content $webConfigPath
                     $connectionStrings = $webConfig.configuration.connectionStrings.add | ForEach-Object {
-                        @{ Name = $_.name; ConnectionString = $_.connectionString; ProviderName = $_.providerName }
+                        @{ Name = $_.name; ConnectionString = Redact-ConnectionString $_.connectionString; ProviderName = $_.providerName }
                     }
                     $appSettings = $webConfig.configuration.appSettings.add | ForEach-Object {
-                        @{ Key = $_.key; Value = $_.value }
+                        @{ Key = $_.key; Value = Redact-Value $_.value }
                     }
                     $webConfigData = @{
                         ConnectionStrings = $connectionStrings
