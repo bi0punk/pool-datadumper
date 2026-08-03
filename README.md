@@ -51,6 +51,28 @@ Por defecto, **todas** las credenciales se redactan automaticamente:
 
 Usa `-NoRedact` solo para debugging local.
 
+## Tests
+
+Recomendado usar Pester para tests unitarios del script PowerShell:
+
+```powershell
+# Instalar Pester si no está disponible
+Install-Module -Name Pester -Force -SkipPublisherCheck
+
+# Ejecutar tests
+Invoke-Pester ./tests
+```
+
+Tests sugeridos:
+- Mock de `Get-ChildItem IIS:\AppPools` y `Get-WebConfiguration`
+- Validación de redacción de connection strings
+- Validación de JSON malformado
+- Manejo de `$null` en `$physicalPath`
+
+## CI
+
+GitHub Actions con PSScriptAnalyzer para linting estático (`.github/workflows/ci.yml`).
+
 ## License
 
 MIT
