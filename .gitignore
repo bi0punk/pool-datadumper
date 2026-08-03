@@ -1,24 +1,7 @@
-# Byte-compiled
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Environments
-.env
-.venv/
-env/
-venv/
-ENV/
-
-# IDE
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Project specific
 *.log
 *.db
-
+*.ps1xml
