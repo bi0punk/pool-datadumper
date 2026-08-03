@@ -1,22 +1,55 @@
 # pool-datadumper
 
-PowerShell script that dumps IIS configuration data (Application Pools, Sites, Applications, Bindings, SSL certificates, web.config/appsettings.json contents) to a timestamped JSON file.
+Volcado de configuracion IIS (App Pools, Sites, certificados SSL, web.config, appsettings.json, ACLs NTFS) a JSON con redaccion automatica de secretos.
 
 ## Stack
 
 PowerShell, IIS WebAdministration module
 
-## Usage
+## Requisitos
+
+- Windows con IIS instalado
+- Ejecutar como **Administrador**
+- Modulo WebAdministration
+
+## Uso
 
 ```powershell
-# Basic dump
+# Volcado estandar (redaccion de secretos activada)
 .\app.ps1
 
-# Extended dump (includes SSL certificate details)
-.\app-extended.ps1
+# Volcado extendido (SSL detallado, ACLs, CPU, RapidFailProtection)
+.\app.ps1 -Mode Extended
+
+# Volcado basico (solo pools y bindings)
+.\app.ps1 -Mode Basic
+
+# Personalizar salida
+.\app.ps1 -OutputPath D:\Backups -JsonDepth 15
+
+# Filtrar por pool/sitio
+.\app.ps1 -PoolFilter "MyApp*" -SiteFilter "MySite"
+
+# DESACTIVAR redaccion (peligroso - expone credenciales)
+.\app.ps1 -NoRedact
 ```
 
-Output is saved as a JSON file named with the server IP and timestamp.
+## Modos
+
+| Modo | Contenido |
+|------|-----------|
+| **Basic** | Pools, bindings, thumbprints SSL, paths |
+| **Standard** | Basic + web.config, appsettings.json (redactado) |
+| **Extended** | Standard + SSL detallado, ACLs NTFS, CPU/RapidFail config |
+
+## Seguridad
+
+Por defecto, **todas** las credenciales se redactan automaticamente:
+- Connection strings: `Password=***REDACTED***`
+- App settings con claves sensibles: `***REDACTED***`
+- appsettings.json: redaccion recursiva de keys que contengan `password`, `secret`, `key`, `token`, `connection`
+
+Usa `-NoRedact` solo para debugging local.
 
 ## License
 
